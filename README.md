@@ -1,3 +1,1 @@
-# bash
-
-new stuff, learning bash scripting...
+# Bash and Python scripts for Linux administration
