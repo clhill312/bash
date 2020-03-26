@@ -1,6 +1,9 @@
 #! /usr/bin/python3
 
-import datetime,os,glob
+import datetime,os,glob,tarfile
+
+# NAS hostname/IP address
+nashost = "nas"
 
 # get date in yyyy-mm-dd--hhmm-ss format
 date = datetime.datetime.now()
@@ -28,7 +31,7 @@ def logparse(hddpath,pname):
     for fyle in llog:
         if "*deleting" in fyle:
             df += fyle
-        elif ">f+++++++++" in fyle: 
+        elif ">f+++++++++" in fyle:
             af += fyle
         elif "cd+++++++++" in fyle:
             ad += fyle
@@ -46,20 +49,20 @@ def logparse(hddpath,pname):
         print(af)
     if ad != "":
         print("Added Directories: \n")
-        print(ad)
+    print(ad)
 
 
 # sync files of HDD1
-hdd1path = "/mnt/usbhdd1"
+hdd1path = "/mnt/nas1"
 
 if os.path.ismount(hdd1path):
     print("HDD1 is mounted, copying")
 
     mklogdir(hdd1path)
 
-    excludes = "--exclude=System\ Volume\ Information --exclude=syslog --exclude=Movies --exclude=TV\ Shows"
+    excludes = "--exclude=System\ Volume\ Information --exclude=syslog --exclude=Movies --exclude=TV\ Shows"# --exclude=Music"
 
-    rsynccmd = "rsync -avzhP --delete "+excludes+" 192.168.0.1:/mnt/Storage/* "+hdd1path+" --log-file="+hdd1path+"/rsynclogs/HDD1rsynclog_"+date+".log"
+    rsynccmd = "rsync -avzhP --delete "+excludes+" "+nashost+":/netstor/* "+hdd1path+" --log-file="+hdd1path+"/rsynclogs/HDD1rsynclog_"+date+".log"
 
     os.system(rsynccmd) # execute the rsync command
 
@@ -70,23 +73,32 @@ else:
 
 
 # sync files of HDD2
-hdd2path = "/mnt/usbhdd2"
+hdd2path = "/mnt/nas2"
 
 if os.path.ismount(hdd2path):
     print("HDD2 is mounted, copying")
 
     mklogdir(hdd2path)
 
-    rsyncmoviescmd = "rsync -avzhP 192.168.0.1:/mnt/Storage/Movies --delete "+hdd2path+" --log-file="+hdd2path+"/rsynclogs/HDD2rsynclog_Movies_"+date+".log"
+    logfilepath = hdd2path+"/rsynclogs/HDD2rsynclog"
+
+    rsyncmoviescmd = "rsync -avzhP "+nashost+":/netstor/Movies --delete "+hdd2path+" --log-file="+logfilepath+"_Movies_"+date+".log"
     os.system(rsyncmoviescmd)
-    rsynctvshowscmd = "rsync -avzhP 192.168.0.1:'/mnt/Storage/TV\ Shows' --delete "+hdd2path+" --log-file="+hdd2path+"/rsynclogs/HDD2rsynclog_TVShows_"+date+".log"
+
+    rsynctvshowscmd = "rsync -avzhP "+nashost+":'/netstor/TV\ Shows' --delete "+hdd2path+" --log-file="+logfilepath+"_TVShows_"+date+".log"
     os.system(rsynctvshowscmd)
+
+    #rsyncmusiccmd = "rsync -avzhP "+nashost+":'/mnt/netstor/Music' --delete "+hdd2path+" --log-file="+logfilepath+"_Music_"+date+".log"
+    #os.system(rsyncmusiccmd)
 
     # movies summary
     logparse(hdd2path,"Movies")
 
     # TV shows summary
     logparse(hdd2path,"TVShows")
+
+    # music summary
+    logparse(hdd2path,"Music")
 
 else:
     print("HDD2 is not mounted, skipping...")
