@@ -1,5 +1,8 @@
 #! /bin/sh
 
+# based of script found here:
+# https://calomel.org/zfs_health_check_script.html
+
 # colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -103,8 +106,6 @@ if [ "$problems" -ne 0 ]; then
   echo '</H1>' >> "$htmllocation/condition.htm"
   echo '</body>' >> "$htmllocation/condition.htm"
   echo '</html>' >> "$htmllocation/condition.htm"
-
-  logger $healthstatus
 
 else
   echo -e "${NC} ZFS pools are healthy"
