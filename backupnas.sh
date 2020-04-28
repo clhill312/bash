@@ -66,7 +66,7 @@ if [ ! -z $hdd1mountpath ]; then
     hddmountpath=$hdd1mountpath
     mklogdir
 
-    rsync --archive --human-readable --progress --delete --exclude=Movies --exclude=TV\ Shows --exclude=rsynclogs "$nashost:/netstor/" "$hdd1mountpath/" --log-file="$hddmountpath/rsynclogs/$date.log" 
+    rsync --archive --human-readable --progress --delete --exclude={Movies,TV\ Shows,rsynclogs} "$nashost:/netstor/" "$hdd1mountpath/" --log-file="$hddmountpath/rsynclogs/$date.log" 
 
     logsum
 
